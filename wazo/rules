@@ -26,10 +26,12 @@ case "$1" in
     install)
         systemctl daemon-reload
         systemctl enable ngrok
+        systemctl start ngrok
         systemctl restart wazo-admin-ui
         ;;
 
     uninstall)
+        systemctl stop ngrok
         systemctl disable ngrok
         systemctl daemon-reload
         systemctl restart wazo-admin-ui
