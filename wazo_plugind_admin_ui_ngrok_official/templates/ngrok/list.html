@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+
+{% block content_header %}
+  {{ build_breadcrumb('Ngrok', '', 'plane', ['List']) }}
+{% endblock %}
+
+{% block content %}
+  <section class="content">
+    {% call build_list_containers('Ngroks', 'plane') %}
+      {% call build_list_table() %}
+        {% call build_list_table_headers() %}
+          <th>Name</th>
+          <th>Protocol</th>
+          <th>Port</th>
+          <th>Url</th>
+          {{ add_list_table_header_action() }}
+        {% endcall %}
+        {% call(ngrok) build_list_table_rows(resource_list['items']) %}
+          <td>{{ ngrok.name }}</td>
+          <td>{{ ngrok.protocol }}</td>
+          <td>{{ ngrok.port }}</td>
+          <td>{{ ngrok.public_url }}</td>
+          <td>
+            {{ add_edit_button(href=url_for('.NgrokView:get', id=ngrok.id)) }}
+            {{ add_delete_button(href=url_for('.NgrokView:delete', id=ngrok.id)) }}
+          </td>
+        {% endcall %}
+      {% endcall %}
+    {% endcall %}
+
+    {% call build_hidden_add_containers('Add Ngrok tunnel') %}
+      {% call build_form() %}
+        {% call add_default_fields(form=form, submit_value="Add") %}
+          {{ render_field(form.name) }}
+          {{ render_field(form.port) }}
+          {{ render_field(form.protocol) }}
+        {% endcall %}
+      {% endcall %}
+    {% endcall %}
+  </section>
+{% endblock %}

@@ -1,0 +1,9 @@
+name: ngrok
+namespace: official
+version: 0.0.1
+author: Sylvain Boily
+display_name: Ngrok tunnel
+tags:
+  - beta
+  - assistance
+homepage: http://ngrok.com
