@@ -85,6 +85,7 @@ class NgrokService(object):
     def update_token(self, token):
         if token:
             self._update_token_yml(token)
+            self._restart_ngrok()
 
     def delete(self, name):
         url = '{}/{}'.format(self.base_url, name)
@@ -115,3 +116,9 @@ class NgrokService(object):
                 'config': False
             }]
         }
+
+    def _restart_ngrok(self):
+        uri = 'http://localhost:8668/services'
+        headers = {'content-type': 'application/json'}
+        service = {'ngrok': 'restart'}
+        req = requests.post(uri, data=json.dumps(service), headers=headers)
