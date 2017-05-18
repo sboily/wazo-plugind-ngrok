@@ -5,8 +5,11 @@
 
 import json
 import requests 
+import yaml
 
 from urlparse import urlparse
+from flask_classful import route
+from flask import request
 
 from flask_menu.classy import register_flaskview
 from flask_menu.classy import classy_menu_item
@@ -20,6 +23,7 @@ from wtforms.validators import InputRequired, Length
 
 
 ngrok = create_blueprint('ngrok', __name__)
+ngrok_config = '/etc/ngrok/ngrok.yml'
 
 class Plugin(object):
 
@@ -49,6 +53,11 @@ class NgrokView(BaseView):
     def index(self):
         return super(NgrokView, self).index()
 
+    @route('/auth_token', methods=['POST'])
+    def auth_token(self):
+        self.service.update_token(request.form.get('authtoken'))
+        return self.index()
+
 
 class NgrokService(object):
 
@@ -56,10 +65,11 @@ class NgrokService(object):
     headers = {'content-type': 'application/json'}
 
     def list(self):
-        r = requests.get(self.base_url)
-        if r.status_code == 200:
-            return r.json()
-        return {}
+        if self._check_authtoken():
+            r = requests.get(self.base_url)
+            if r.status_code == 200:
+                return r.json()
+        return self._authtoken_error()
 
     def create(self, resources):
         tunnel = {
@@ -71,11 +81,37 @@ class NgrokService(object):
         r = requests.post(self.base_url, data=json.dumps(tunnel), headers=self.headers)
         if r.status_code == 201:
             return r.json()
-        return False
+
+    def update_token(self, token):
+        if token:
+            self._update_token_yml(token)
 
     def delete(self, name):
         url = '{}/{}'.format(self.base_url, name)
-        r = requests.delete(url, headers=self.headers)
-        if r.status_code == 204:
-            return True
+        requests.delete(url, headers=self.headers)
+
+    def _check_authtoken(self):
+        with open(ngrok_config) as stream:
+            try:
+                token = yaml.load(stream)
+                if token and token.get('authtoken') != None:
+                    return True
+            except yaml.YAMLError as e:
+                print e
+
         return False
+
+    def _update_token_yml(self, token):
+        data = {
+            'authtoken': '{}'.format(token)
+        }
+        with open(ngrok_config, 'w') as stream:
+            yaml.dump(data, stream, default_flow_style=False)
+
+    def _authtoken_error(self):
+        return {
+            'tunnels': [{
+                'error': 'Auth token is not configured',
+                'config': False
+            }]
+        }

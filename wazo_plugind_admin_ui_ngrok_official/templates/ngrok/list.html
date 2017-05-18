@@ -5,37 +5,66 @@
 {% endblock %}
 
 {% block content %}
-  <section class="content">
-    {% call build_list_containers('Ngroks', 'plane') %}
-      {% call build_list_table() %}
-        {% call build_list_table_headers() %}
-          <th>Name</th>
-          <th>Protocol</th>
-          <th>Port</th>
-          <th>Url</th>
-          {{ add_list_table_header_action() }}
-        {% endcall %}
-        {% call(ngrok) build_list_table_rows(resource_list['tunnels']) %}
-          <td>{{ ngrok.name }}</td>
-          <td>{{ ngrok.proto }}</td>
-          <td>{{ ngrok.config.addr }}</td>
-          <td>{{ ngrok.public_url }}</td>
-          <td>
-            {{ add_edit_button(href=url_for('.NgrokView:get', id=ngrok.name)) }}
-            {{ add_delete_button(href=url_for('.NgrokView:delete', id=ngrok.name)) }}
-          </td>
-        {% endcall %}
-      {% endcall %}
-    {% endcall %}
 
-    {% call build_hidden_add_containers('Add Ngrok tunnel') %}
-      {% call build_form() %}
-        {% call add_default_fields(form=form, submit_value="Add") %}
-          {{ render_field(form.name) }}
-          {{ render_field(form.port) }}
-          {{ render_field(form.protocol) }}
+  {% if resource_list.tunnels and resource_list.tunnels[0].error %}
+
+    <section class="content">
+      <div class="error-page">
+        <h2 class="headline text-red">501</h2>
+        <div class="error-content">
+          <h3><i class="fa fa-warning text-red"></i>{{ resource_list.tunnels[0].error }}</h3>
+          <p>
+            Please add your auth token from ngrok website.
+            Meanwhile, you may <a href="http://ngrok.com">go to ngrok dashboard</a> to get your token.
+          </p>
+          <form class="search-form" method="post" action="{{ url_for('.NgrokView:auth_token') }}">
+            {{ form.csrf_token }}
+            <div class="input-group">
+              <input type="text" name="authtoken" class="form-control" placeholder="Auth Token">
+              <div class="input-group-btn">
+                <button type="submit" name="submit" class="btn btn-danger btn-flat"><i class="fa fa-plus"></i>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  {% else %}
+
+    <section class="content">
+      {% call build_list_containers('Ngroks', 'plane') %}
+        {% call build_list_table() %}
+          {% call build_list_table_headers() %}
+            <th>Name</th>
+            <th>Protocol</th>
+            <th>Port</th>
+            <th>Url</th>
+            {{ add_list_table_header_action() }}
+          {% endcall %}
+          {% call(ngrok) build_list_table_rows(resource_list['tunnels']) %}
+            <td>{{ ngrok.name }}</td>
+            <td>{{ ngrok.proto }}</td>
+            <td>{{ ngrok.config.addr }}</td>
+            <td>{{ ngrok.public_url }}</td>
+            <td>
+              {{ add_delete_button(href=url_for('.NgrokView:delete', id=ngrok.name)) }}
+            </td>
+          {% endcall %}
         {% endcall %}
       {% endcall %}
-    {% endcall %}
-  </section>
+
+      {% call build_hidden_add_containers('Add Ngrok tunnel') %}
+        {% call build_form() %}
+          {% call add_default_fields(form=form, submit_value="Add") %}
+            {{ render_field(form.name) }}
+            {{ render_field(form.port) }}
+            {{ render_field(form.protocol) }}
+          {% endcall %}
+        {% endcall %}
+      {% endcall %}
+    </section>
+
+  {% endif %}
 {% endblock %}
