@@ -3,7 +3,7 @@ Description=ngrok service
 After=network.target
 
 [Service]
-ExecStart=/usr/local/bin/ngrok start --none
+ExecStart=/usr/local/bin/ngrok start -config /etc/ngrok/ngrok.yml --none
 
 [Install]
 WantedBy=multi-user.target

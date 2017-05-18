@@ -15,7 +15,7 @@ from wazo_admin_ui.helpers.plugin import create_blueprint
 from wazo_admin_ui.helpers.classful import BaseView
 from wazo_admin_ui.helpers.form import BaseForm
 
-from wtforms.fields import SubmitField, StringField
+from wtforms.fields import SubmitField, StringField, SelectField
 from wtforms.validators import InputRequired, Length
 
 
@@ -35,8 +35,8 @@ class Plugin(object):
 
 class NgrokForm(BaseForm):
     port = StringField('Port', [InputRequired(), Length(max=128)])
-    protocol = StringField('Protocol', [InputRequired(), Length(max=128)])
-    name = StringField('Protocol', [InputRequired(), Length(max=128)])
+    protocol = SelectField('Protocol', choices=[('tcp', 'TCP'), ('http', 'HTTP'), ('tls', 'TLS')])
+    name = StringField('Name', [InputRequired(), Length(max=128)])
     submit = SubmitField('Submit')
 
 
@@ -52,11 +52,30 @@ class NgrokView(BaseView):
 
 class NgrokService(object):
 
+    base_url = 'http://localhost:4040/api/tunnels'
+    headers = {'content-type': 'application/json'}
+
     def list(self):
-        pass
+        r = requests.get(self.base_url)
+        if r.status_code == 200:
+            return r.json()
+        return {}
 
-    def get(self, tunnel_id):
-        pass
+    def create(self, resources):
+        tunnel = {
+            'addr': resources.get('port'),
+            'proto': resources.get('protocol'),
+            'name': resources.get('name')
+        }
 
-    def update(self, resource):
-        pass
+        r = requests.post(self.base_url, data=json.dumps(tunnel), headers=self.headers)
+        if r.status_code == 201:
+            return r.json()
+        return False
+
+    def delete(self, name):
+        url = '{}/{}'.format(self.base_url, name)
+        r = requests.delete(url, headers=self.headers)
+        if r.status_code == 204:
+            return True
+        return False

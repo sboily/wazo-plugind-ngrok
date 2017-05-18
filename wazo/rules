@@ -24,6 +24,7 @@ case "$1" in
         ;;
 
     install)
+        chown wazo-admin-ui.wazo-admin-ui /etc/ngrok/ngrok.yml
         systemctl daemon-reload
         systemctl enable ngrok
         systemctl start ngrok
