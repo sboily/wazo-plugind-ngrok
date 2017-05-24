@@ -32,6 +32,8 @@ case "$1" in
         ;;
 
     uninstall)
+        rm -f /etc/wazo-admin-ui/conf.d/50-ngrok.yml
+        systemctl restart wazo-admin-ui
         systemctl stop ngrok
         systemctl disable ngrok
         systemctl daemon-reload
