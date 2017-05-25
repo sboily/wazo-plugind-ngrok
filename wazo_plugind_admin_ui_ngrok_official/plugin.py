@@ -43,6 +43,7 @@ class NgrokForm(BaseForm):
     name = StringField('Name', [InputRequired(), Length(max=128)])
     subdomain = StringField('Subdomain', [Length(max=128)])
     auth = StringField('Auth', [Length(max=128)])
+    bind_tls = SelectField('Bind TLS', choices=[('true', 'True'), ('false', 'False'), ('both', 'Both')])
     submit = SubmitField('Submit')
 
 
@@ -84,6 +85,8 @@ class NgrokService(object):
             tunnel['auth'] = resources.get('auth')
         if resources.get('subdomain'):
             tunnel['subdomain'] = resources.get('subdomain')
+        if resources.get('bind_tls') and resources.get('protocol') == 'http':
+            tunnel['bind_tls'] = resources.get('bind_tls')
 
         r = requests.post(self.base_url, data=json.dumps(tunnel), headers=self.headers)
         if r.status_code == 201:
