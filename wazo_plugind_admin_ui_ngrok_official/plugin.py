@@ -41,6 +41,8 @@ class NgrokForm(BaseForm):
     port = StringField('Port', [InputRequired(), Length(max=128)])
     protocol = SelectField('Protocol', choices=[('tcp', 'TCP'), ('http', 'HTTP'), ('tls', 'TLS')])
     name = StringField('Name', [InputRequired(), Length(max=128)])
+    subdomain = StringField('Subdomain', [Length(max=128)])
+    auth = StringField('Auth', [Length(max=128)])
     submit = SubmitField('Submit')
 
 
@@ -77,6 +79,11 @@ class NgrokService(object):
             'proto': resources.get('protocol'),
             'name': resources.get('name')
         }
+
+        if resources.get('auth'):
+            tunnel['auth'] = resources.get('auth')
+        if resources.get('subdomain'):
+            tunnel['subdomain'] = resources.get('subdomain')
 
         r = requests.post(self.base_url, data=json.dumps(tunnel), headers=self.headers)
         if r.status_code == 201:
