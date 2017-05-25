@@ -18,7 +18,7 @@ from wazo_admin_ui.helpers.plugin import create_blueprint
 from wazo_admin_ui.helpers.classful import BaseView
 from wazo_admin_ui.helpers.form import BaseForm
 
-from wtforms.fields import SubmitField, StringField, SelectField
+from wtforms.fields import SubmitField, StringField, SelectField, BooleanField
 from wtforms.validators import InputRequired, Length
 
 
@@ -44,6 +44,7 @@ class NgrokForm(BaseForm):
     subdomain = StringField('Subdomain', [Length(max=128)])
     auth = StringField('Auth', [Length(max=128)])
     bind_tls = SelectField('Bind TLS', choices=[('true', 'True'), ('false', 'False'), ('both', 'Both')])
+    use_wazo_crt = BooleanField('Use Wazo certificates')
     submit = SubmitField('Submit')
 
 
@@ -87,6 +88,10 @@ class NgrokService(object):
             tunnel['subdomain'] = resources.get('subdomain')
         if resources.get('bind_tls') and resources.get('protocol') == 'http':
             tunnel['bind_tls'] = resources.get('bind_tls')
+
+        if resources.get('use_wazo_crt') and resources.get('protocol') == 'tls':
+            tunnel['crt'] = '/usr/share/xivo-certs/server.crt'
+            tunnel['key'] = '/usr/share/xivo-certs/server.key'
 
         r = requests.post(self.base_url, data=json.dumps(tunnel), headers=self.headers)
         if r.status_code == 201:
