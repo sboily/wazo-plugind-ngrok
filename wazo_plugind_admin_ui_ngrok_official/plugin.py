@@ -6,6 +6,7 @@
 import json
 import requests 
 import yaml
+import time
 
 from urlparse import urlparse
 from flask_classful import route
@@ -60,6 +61,7 @@ class NgrokView(BaseView):
     @route('/auth_token', methods=['POST'])
     def auth_token(self):
         self.service.update_token(request.form.get('authtoken'))
+        time.sleep(1)
         return self.index()
 
 
@@ -82,7 +84,7 @@ class NgrokService(object):
             'name': resources.get('name')
         }
 
-        if resources.get('auth'):
+        if resources.get('auth') and resources.get('protocol') == 'http':
             tunnel['auth'] = resources.get('auth')
         if resources.get('subdomain'):
             tunnel['subdomain'] = resources.get('subdomain')
