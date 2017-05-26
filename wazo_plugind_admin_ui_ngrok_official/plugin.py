@@ -54,6 +54,7 @@ class NgrokConfigForm(BaseForm):
                             render_kw={'type': 'password',
                                        'data_toggle': 'password'})
     region = SelectField('Region', choices=[('us', 'United States'), ('eu', 'Europe'), ('ap', 'Asia/Pacific'), ('au', 'Australia')])
+    console_ui = BooleanField('Console UI')
     submit = SubmitField('Submit')
 
 
@@ -131,7 +132,8 @@ class NgrokService(object):
     def _update_yml(self, form):
         data = {
             'authtoken': '{}'.format(form.get('authtoken')),
-            'region': '{}'.format(form.get('region'))
+            'region': '{}'.format(form.get('region')),
+            'console_ui': '{}'.format(form.get('console_ui')),
         }
         with open(ngrok_config, 'w') as stream:
             yaml.dump(data, stream, default_flow_style=False)
