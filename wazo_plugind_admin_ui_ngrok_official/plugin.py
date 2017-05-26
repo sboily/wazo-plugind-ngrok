@@ -130,10 +130,13 @@ class NgrokService(object):
         return {}
 
     def _update_yml(self, form):
+        console_ui = form.get('console_ui', False)
+        if console_ui == 'y':
+            console_ui = True
         data = {
             'authtoken': '{}'.format(form.get('authtoken')),
             'region': '{}'.format(form.get('region')),
-            'console_ui': '{}'.format(form.get('console_ui')),
+            'console_ui': console_ui,
         }
         with open(ngrok_config, 'w') as stream:
             yaml.dump(data, stream, default_flow_style=False)
