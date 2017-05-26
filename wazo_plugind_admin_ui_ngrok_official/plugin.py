@@ -54,7 +54,7 @@ class NgrokConfigForm(BaseForm):
                             render_kw={'type': 'password',
                                        'data_toggle': 'password'})
     region = SelectField('Region', choices=[('us', 'United States'), ('eu', 'Europe'), ('ap', 'Asia/Pacific'), ('au', 'Australia')])
-    console_ui = BooleanField('Console UI')
+    web_addr = BooleanField('Web console')
     submit = SubmitField('Submit')
 
 
@@ -130,13 +130,13 @@ class NgrokService(object):
         return {}
 
     def _update_yml(self, form):
-        console_ui = form.get('console_ui', False)
-        if console_ui == 'y':
-            console_ui = True
+        web_addr = form.get('web_addr', False)
+        if web_addr == 'y':
+            web_addr = '127.0.0.1:4040'
         data = {
             'authtoken': '{}'.format(form.get('authtoken')),
             'region': '{}'.format(form.get('region')),
-            'console_ui': console_ui,
+            'web_addr': web_addr,
         }
         with open(ngrok_config, 'w') as stream:
             yaml.dump(data, stream, default_flow_style=False)
