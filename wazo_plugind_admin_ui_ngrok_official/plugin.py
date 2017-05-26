@@ -6,11 +6,11 @@
 import json
 import requests 
 import yaml
-import time
 
 from urlparse import urlparse
 from flask_classful import route
 from flask import request
+from flask import render_template
 
 from flask_menu.classy import register_flaskview
 from flask_menu.classy import classy_menu_item
@@ -48,6 +48,14 @@ class NgrokForm(BaseForm):
     use_wazo_crt = BooleanField('Use Wazo certificates')
     submit = SubmitField('Submit')
 
+class NgrokConfigForm(BaseForm):
+    authtoken = StringField('Auth Token',
+                            [InputRequired(), Length(max=128)],
+                            render_kw={'type': 'password',
+                                       'data_toggle': 'password'})
+    region = SelectField('Region', choices=[('us', 'United States'), ('eu', 'Europe'), ('ap', 'Asia/Pacific'), ('au', 'Australia')])
+    submit = SubmitField('Submit')
+
 
 class NgrokView(BaseView):
 
@@ -55,14 +63,20 @@ class NgrokView(BaseView):
     resource = 'ngrok'
 
     @classy_menu_item('.ngrok', 'Ngrok', order=11, icon="plane")
+    @classy_menu_item('.ngrok.tunnels', 'Tunnels', order=2, icon="lock")
     def index(self):
         return super(NgrokView, self).index()
 
     @route('/auth_token', methods=['POST'])
     def auth_token(self):
-        self.service.update_token(request.form.get('authtoken'))
-        time.sleep(1)
-        return self.index()
+        self.service.update_config(request.form)
+        return self.config()
+
+    @classy_menu_item('.ngrok.config', 'Configuration', order=1, icon="gear")
+    def config(self):
+        resource = self.service.get_resource()
+        form = NgrokConfigForm(data=resource)
+        return render_template('ngrok/config.html', form=form, resource=resource)
 
 
 class NgrokService(object):
@@ -71,11 +85,9 @@ class NgrokService(object):
     headers = {'content-type': 'application/json'}
 
     def list(self):
-        if self._check_authtoken():
-            r = requests.get(self.base_url)
-            if r.status_code == 200:
-                return r.json()
-        return self._authtoken_error()
+        r = requests.get(self.base_url)
+        if r.status_code == 200:
+            return r.json()
 
     def create(self, resources):
         tunnel = {
@@ -99,40 +111,33 @@ class NgrokService(object):
         if r.status_code == 201:
             return r.json()
 
-    def update_token(self, token):
-        if token:
-            self._update_token_yml(token)
+    def update_config(self, form):
+        if self._update_yml(form):
             self._restart_ngrok()
 
     def delete(self, name):
         url = '{}/{}'.format(self.base_url, name)
         requests.delete(url, headers=self.headers)
 
-    def _check_authtoken(self):
-        with open(ngrok_config) as stream:
+    def get_resource(self):
+        with open(ngrok_config, 'r') as stream:
             try:
-                token = yaml.load(stream)
-                if token and token.get('authtoken') != None:
-                    return True
+                return yaml.load(stream)
             except yaml.YAMLError as e:
                 print e
 
-        return False
+        return {}
 
-    def _update_token_yml(self, token):
+    def _update_yml(self, form):
         data = {
-            'authtoken': '{}'.format(token)
+            'authtoken': '{}'.format(form.get('authtoken')),
+            'region': '{}'.format(form.get('region'))
         }
         with open(ngrok_config, 'w') as stream:
             yaml.dump(data, stream, default_flow_style=False)
+            return True
 
-    def _authtoken_error(self):
-        return {
-            'tunnels': [{
-                'error': 'Auth token is not configured',
-                'config': False
-            }]
-        }
+        return False
 
     def _restart_ngrok(self):
         uri = 'http://localhost:8668/services'
