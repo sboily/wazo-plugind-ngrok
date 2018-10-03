@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Copyright 2017 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
@@ -8,12 +8,12 @@ from setuptools import setup
 
 setup(
     name='wazo_admin_ui_ngrok',
-    version='0.1',
+    version='0.2',
 
     description='Wazo Admin UI ngrok',
 
     author='Sylvain Boily',
-    author_email='sboily@wazo.community',
+    author_email='sylvain@wazo.io',
 
     url='http://ngrok.com',
 
