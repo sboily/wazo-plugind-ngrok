@@ -7,7 +7,6 @@ import json
 import requests 
 import yaml
 
-from urlparse import urlparse
 from flask_classful import route
 from flask import request
 from flask import render_template
