@@ -13,7 +13,6 @@
           <th>Protocol</th>
           <th>Port</th>
           <th>Url</th>
-          {{ add_list_table_header_action() }}
         {% endcall %}
         {% call(ngrok) build_list_table_rows(resource_list['tunnels']) %}
           <td>{{ ngrok.name }}</td>
