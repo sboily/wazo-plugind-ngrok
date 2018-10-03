@@ -3,6 +3,7 @@ namespace: official
 version: 0.0.2
 author: Sylvain Boily
 display_name: Ngrok tunnel
+min_wazo_version: 18.03
 tags:
   - beta
   - assistance

@@ -124,7 +124,7 @@ class NgrokService(object):
             try:
                 return yaml.load(stream)
             except yaml.YAMLError as e:
-                print e
+                print(e)
 
         return {}
 
