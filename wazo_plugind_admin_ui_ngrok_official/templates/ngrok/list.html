@@ -19,9 +19,6 @@
           <td>{{ ngrok.proto }}</td>
           <td>{{ ngrok.config.addr }}</td>
           <td>{{ ngrok.public_url }}</td>
-          <td>
-            {{ add_delete_button(href=url_for('.NgrokView:delete', id=ngrok.name)) }}
-          </td>
         {% endcall %}
       {% endcall %}
     {% endcall %}
