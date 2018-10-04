@@ -8,7 +8,7 @@
   <section class="content">
     {% call build_list_containers('Ngrok', 'lock') %}
       {% call build_list_table() %}
-        {% call build_list_table_headers() %}
+        {% call build_list_table_headers(delete=url_for('.NgrokView:delete', id=ngrok.name)) %}
           <th>Name</th>
           <th>Protocol</th>
           <th>Port</th>
