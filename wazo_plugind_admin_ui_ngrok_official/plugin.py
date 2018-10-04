@@ -43,7 +43,7 @@ class NgrokForm(BaseForm):
     name = StringField('Name', [InputRequired(), Length(max=128)])
     subdomain = StringField('Subdomain', [Length(max=128)])
     auth = StringField('Auth', [Length(max=128)])
-    bind_tls = SelectField('Bind TLS', choices=[('true', 'True'), ('false', 'False'), ('both', 'Both')])
+    bind_tls = SelectField('Bind TLS', choices=[('false', 'False'), ('true', 'True'), ('both', 'Both')])
     use_wazo_crt = BooleanField('Use Wazo certificates')
     submit = SubmitField('Submit')
 
